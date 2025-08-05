@@ -2,75 +2,41 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import ProductForm from './components/ProductForm.jsx'
-import ProductList from './components/ProductList.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
   const [backendStatus, setBackendStatus] = useState('No probado')
   const [backendResponse, setBackendResponse] = useState('')
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Función para probar la conectividad con el backend
+  // Función para probar la conectividad con el backend en producción
   const testBackendConnection = async () => {
     setBackendStatus('Probando...')
     setBackendResponse('')
     
     try {
-      // Probamos diferentes endpoints (usando tu backend local)
-      const endpoints = [
-        'http://localhost:3001/api/producto/',
-        'http://localhost:3001/api/',
-        'http://localhost:3001/',
-        'https://backend-techstore.vercel.app/api/producto/',
-        'https://backend-techstore.vercel.app/api/',
-        'https://backend-techstore.vercel.app/'
-      ]
+      // URL del backend en producción
+      const response = await fetch('https://backend-techstore.vercel.app/api/producto', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors'
+      })
       
-      for (const endpoint of endpoints) {
-        try {
-          console.log(`Probando endpoint: ${endpoint}`)
-          
-          const response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            mode: 'cors'
-          })
-          
-          console.log('Response status:', response.status)
-          console.log('Response headers:', response.headers)
-          
-          if (response.ok) {
-            const data = await response.text()
-            setBackendStatus('✅ Conectado')
-            setBackendResponse(`Endpoint: ${endpoint}\nStatus: ${response.status}\nData: ${data.substring(0, 200)}...`)
-            return
-          } else {
-            console.log(`Error ${response.status} en ${endpoint}`)
-          }
-        } catch (error) {
-          console.log(`Error en ${endpoint}:`, error.message)
-        }
+      if (response.ok) {
+        const data = await response.json()
+        setBackendStatus('✅ Conectado')
+        setBackendResponse(`Status: ${response.status}\nProductos: ${data.data ? data.data.length : 0}`)
+      } else {
+        setBackendStatus('❌ Error HTTP')
+        setBackendResponse(`Error ${response.status}: ${response.statusText}`)
       }
-      
-      setBackendStatus('❌ Error de conexión')
-      setBackendResponse('No se pudo conectar a ningún endpoint del backend')
-      
     } catch (error) {
-      console.error('Error general:', error)
-      setBackendStatus('❌ Error')
+      console.error('Error:', error)
+      setBackendStatus('❌ Error de conexión')
       setBackendResponse(`Error: ${error.message}`)
     }
   }
-
-  // Función para manejar cuando se crea un nuevo producto
-  const handleProductCreated = (newProduct) => {
-    console.log('Nuevo producto creado:', newProduct);
-    // Incrementar el trigger para refrescar la lista
-    setRefreshTrigger(prev => prev + 1);
-  };
 
   return (
     <>
@@ -82,13 +48,13 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>TechStore - Gestión de Productos</h1>
+      <h1>TechStore - Prueba de Producción</h1>
       
       {/* Sección de prueba del backend */}
       <div className="card">
         <h3>Estado del Backend: {backendStatus}</h3>
         <button onClick={testBackendConnection} style={{ marginBottom: '10px' }}>
-          Probar Conexión Backend
+          Probar Conexión Backend (Producción)
         </button>
         
         {backendResponse && (
@@ -106,18 +72,7 @@ function App() {
           </div>
         )}
       </div>
-
-      {/* Sección de gestión de productos */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
-        <div className="card">
-          <ProductForm onProductCreated={handleProductCreated} />
-        </div>
-        
-        <div className="card">
-          <ProductList refreshTrigger={refreshTrigger} />
-        </div>
-      </div>
-
+      
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
