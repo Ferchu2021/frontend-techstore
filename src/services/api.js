@@ -1,5 +1,7 @@
 // Configuración de la API
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.PROD 
+  ? 'https://backend-techstore.vercel.app/api'  // Producción
+  : 'http://localhost:3001/api';                 // Desarrollo
 
 // Clase para manejar las peticiones HTTP
 class ApiService {

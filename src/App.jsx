@@ -21,7 +21,10 @@ function App() {
       const endpoints = [
         'http://localhost:3001/api/producto/',
         'http://localhost:3001/api/',
-        'http://localhost:3001/'
+        'http://localhost:3001/',
+        'https://backend-techstore.vercel.app/api/producto/',
+        'https://backend-techstore.vercel.app/api/',
+        'https://backend-techstore.vercel.app/'
       ]
       
       for (const endpoint of endpoints) {
